@@ -114,15 +114,15 @@ jobs:
         run: |
           cat temp-cn.txt | grep -v google  | grep -v ooklaserver | grep -v "acg.rip" | sort --ignore-case -u | perl -ne '/^((?=^.{1,255})[a-zA-Z0-9][-_a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-_a-zA-Z0-9]{0,62})*)/ && print "$1\n"' > ./community/data/cn
           cat temp-cn.txt | sort --ignore-case -u | perl -ne 'print if not /^((?=^.{3,255})[a-zA-Z0-9][-_a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-_a-zA-Z0-9]{0,62})+)/' > direct-tld-list.txt
-          cat temp-geolocation-\!cn.txt | sort --ignore-case -u | perl -ne '/^((?=^.{1,255})[a-zA-Z0-9][-_a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-_a-zA-Z0-9]{0,62})*)/ && print "$1\n"' | perl -ne 'print if not /\.cn$/' > ./community/data/geolocation-\!cn
+          cat temp-geolocation-\!cn.txt | sort --ignore-case -u | perl -ne '/^((?=^.{1,255})[a-zA-Z0-9][-_a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-_a-zA-Z0-9]{0,62})*)/ && print "$1\n"' | perl -ne 'print if not /\.cn$/' > ./community/data/\!cn
           cat temp-geolocation-\!cn.txt | sort --ignore-case -u | perl -ne 'print if not /^((?=^.{3,255})[a-zA-Z0-9][-_a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-_a-zA-Z0-9]{0,62})+)/' > proxy-tld-list.txt
 
       - name: Add `full`, `regexp` and `keyword` type of rules back into "cn", and "geolocation-!cn" list
         run: |
           [ -f "direct-reserve.txt" ] && cat direct-reserve.txt >> ./community/data/cn
-          [ -f "proxy-reserve.txt" ] && cat proxy-reserve.txt >> ./community/data/geolocation-\!cn
+          [ -f "proxy-reserve.txt" ] && cat proxy-reserve.txt >> ./community/data/\!cn
           cp ./community/data/cn direct-list.txt
-          cp ./community/data/geolocation-\!cn proxy-list.txt
+          cp ./community/data/\!cn proxy-list.txt
 
       - name: Create `google-cn`、`apple-cn`、`gfw` lists
         run: |
@@ -154,14 +154,14 @@ jobs:
 
       - name: Remove tld-!cn from geolocation-!cn
         run: |
-          sed 's/include:tld-!cn/# include:tld-!cn/' community/data/geolocation-!cn
+          sed -i 's/include:tld-!cn/# include:tld-!cn/' community/data/geolocation-!cn
           cat community/data/geolocation-!cn
 
       - name: Build geosite.dat file
         run: |
           cd custom || exit 1
           # echo sentry.io >>  ../community/data/openai
-          echo ipleak.net >> ../community/data/geolocation-\!cn && echo browserleaks.org >> ../community/data/geolocation-\!cn
+          echo ipleak.net >> ../community/data/\!cn && echo browserleaks.org >> ../community/data/\!cn
           go run ./ --datapath=../community/data
 
       - name: Build geosite-lite.dat file
